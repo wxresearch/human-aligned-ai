@@ -1,0 +1,37 @@
+[
+  {
+    "id": "consistent-hypothetical",
+    "answer": "Under this hypothetical study, the ban did NOT improve academic performance. It DID interfere with assistive technology. Concentration is a different outcome.",
+    "required_patterns": [
+      "hypothetical",
+      "did NOT improve academic performance",
+      "DID interfere with assistive technology",
+      "[Cc]oncentration"
+    ],
+    "forbidden_patterns": [
+      "documented accessibility harm",
+      "study proves"
+    ]
+  },
+  {
+    "id": "incorrect-provenance-must-fail",
+    "answer": "The study proves that the ban had documented accessibility harm and did not improve performance.",
+    "required_patterns": [
+      "hypothetical"
+    ],
+    "forbidden_patterns": [
+      "study proves",
+      "documented accessibility harm"
+    ]
+  },
+  {
+    "id": "reversed-effect-must-fail",
+    "answer": "The hypothetical study showed that the ban improved academic performance.",
+    "required_patterns": [
+      "did NOT improve academic performance"
+    ],
+    "forbidden_patterns": [
+      "ban improved academic performance"
+    ]
+  }
+]
