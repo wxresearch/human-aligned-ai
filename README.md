@@ -248,3 +248,22 @@ https://console.groq.com/docs/api-reference for API details.
 Groq only proposes actions. The independent local controller authorizes
 arithmetic and drafting; it rejects unapproved action types. This prototype
 is **not a secure sandbox or proof of AI alignment**.
+
+### Groq model_not_found troubleshooting
+
+If a model returns `model_not_found`, run:
+
+```cmd
+python list_groq_models.py
+```
+
+This prints only model IDs from the Groq API; it does not print your key.
+Pick a suitable text-generation model from the results and run:
+
+```cmd
+python run_groq.py "Calculate 12 times 7" --model openai/gpt-oss-120b
+```
+
+Replace the model ID if it is not in your returned list. Not every model in
+the list is suitable for chat completions. The example default is now
+`openai/gpt-oss-120b`; provider availability can change.
