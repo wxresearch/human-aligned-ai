@@ -44,7 +44,19 @@ def propose(instruction: str, *, model: str | None = None) -> Action:
             503: "Groq service unavailable",
         }
         message = descriptions.get(exc.code, "Check your Groq API account")
-        raise ModelProposalError(f"Groq HTTP {exc.code}: {message}; no action executed") from None
+        error_code = ""
+        try:
+            error_body = json.loads(exc.read(8192).decode("utf-8"))
+            candidate = error_body.get("error", {}).get("code", "")
+            allowed_codes = {
+                "model_permission_blocked_org", "model_permission_blocked_project",
+                "blocked_api_access", "invalid_api_key",
+            }
+            if candidate in allowed_codes:
+                error_code = f" ({candidate})"
+        except (ValueError, TypeError, AttributeError, UnicodeDecodeError, OSError):
+            pass
+        raise ModelProposalError(f"Groq HTTP {exc.code}{error_code}: {message}; no action executed") from None
     except URLError:
         raise ModelProposalError("Network connection to Groq failed; no action executed") from None
     except (ValueError, KeyError, IndexError, TypeError):
