@@ -1,6 +1,7 @@
 import os
 import unittest
 from unittest.mock import patch
+from urllib.error import HTTPError
 from gemini_planner import propose
 from llm_planner import ModelProposalError
 from safe_agent import Controller
@@ -10,6 +11,17 @@ class GeminiTests(unittest.TestCase):
         with patch.dict(os.environ, {}, clear=True):
             with self.assertRaises(ModelProposalError):
                 propose("Calculate 1 plus 2")
+
+    def test_http_errors_give_safe_explanations(self):
+        with patch.dict(os.environ, {"GEMINI_API_KEY": "fake"}):
+            for status, expected in ((400, "Invalid request"), (403, "Permission denied"), (404, "Model not found"), (429, "Quota")):
+                with self.subTest(status=status):
+                    error = HTTPError("https://example.org", status, "failure", {}, None)
+                    with patch("gemini_planner.urlopen", side_effect=error):
+                        with self.assertRaises(ModelProposalError) as caught:
+                            propose("test")
+                    self.assertIn(expected, str(caught.exception))
+                    self.assertNotIn("fake", str(caught.exception))
 
     def test_fake_response_is_policy_checked(self):
         class FakeResponse:
