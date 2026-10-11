@@ -15,7 +15,7 @@ def propose(instruction: str, *, model: str | None = None) -> Action:
     key = os.environ.get("GROQ_API_KEY")
     if not key:
         raise ModelProposalError("GROQ_API_KEY is not set; no action executed")
-    model_name = model or os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    model_name = model or os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
     payload = {
         "model": model_name,
         "messages": [{"role": "system", "content": SYSTEM},
