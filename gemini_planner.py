@@ -33,6 +33,24 @@ def propose(instruction: str, *, model: str | None = None) -> Action:
         parts = obj["candidates"][0]["content"]["parts"]
         raw = "".join(part.get("text", "") for part in parts)
     except HTTPError as exc:
+        # Only print recognized Google error codes/reasons, never response text
+        # (which could contain sensitive account details).
+        reason = ""
+        try:
+            body = json.loads(exc.read(8192).decode("utf-8"))
+            details = body.get("error", {}).get("details", [])
+            candidates = [d.get("reason", "") for d in details if isinstance(d, dict)]
+            known = {
+                "API_KEY_INVALID", "API_KEY_EXPIRED", "API_KEY_SERVICE_BLOCKED",
+                "API_KEY_HTTP_REFERRER_BLOCKED", "API_KEY_IP_ADDRESS_BLOCKED",
+                "API_KEY_API_TARGET_BLOCKED", "SERVICE_DISABLED",
+            }
+            reason = next((r for r in candidates if r in known), "")
+            status = body.get("error", {}).get("status", "")
+            if not reason and status in {"FAILED_PRECONDITION", "INVALID_ARGUMENT", "PERMISSION_DENIED", "RESOURCE_EXHAUSTED"}:
+                reason = status
+        except (ValueError, AttributeError, UnicodeDecodeError, OSError):
+            pass
         guidance = {
             400: "Invalid request or API key; check the Gemini API key and request format.",
             401: "Authentication failed; check the API key.",
@@ -42,7 +60,12 @@ def propose(instruction: str, *, model: str | None = None) -> Action:
             500: "Google server error; retry later.",
             503: "Gemini temporarily unavailable; retry later.",
         }.get(exc.code, "See Google AI Studio API access and model settings.")
-        raise ModelProposalError(f"Gemini HTTP {exc.code}: {guidance} No action executed.") from None
+        detail = f" ({reason})" if reason else ""
+        if reason in {"API_KEY_INVALID", "API_KEY_EXPIRED"}:
+            guidance = "The Gemini key is invalid or expired. Create a new key in Google AI Studio."
+        elif reason == "FAILED_PRECONDITION":
+            guidance = "Project prerequisites may be unmet (e.g. billing/region); check Google AI Studio."
+        raise ModelProposalError(f"Gemini HTTP {exc.code}{detail}: {guidance} No action executed.") from None
     except URLError:
         raise ModelProposalError("Network error contacting Gemini; check internet, proxy or firewall. No action executed.") from None
     except (KeyError, IndexError, TypeError, ValueError):
