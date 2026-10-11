@@ -203,3 +203,48 @@ variable; alternatively run `set GEMINI_API_KEY=`.
 This Gemini integration uses Google's REST `generateContent` endpoint,
 with **no Python packages to install beyond Python itself**.
 The controller remains a demonstration, not a security guarantee.
+
+## Use Groq API (Windows Command Prompt)
+
+You do **not** need an OpenAI or Gemini API key to use Groq.
+
+1. Open **Command Prompt** in your project directory and update:
+
+   ```cmd
+   cd human-aligned-ai
+   git pull
+   ```
+
+2. Set your key **only in the current CMD session**. Generate one at
+   https://console.groq.com/keys if needed:
+
+   ```cmd
+   set "GROQ_API_KEY=your-actual-groq-key"
+   ```
+
+   **Never paste the real key in GitHub, screenshots, or chat.**
+
+3. Make your first test call:
+
+   ```cmd
+   python run_groq.py "Calculate 12 times 7"
+   python run_groq.py "Draft a friendly message to a reviewer"
+   ```
+
+   Default: `llama-3.3-70b-versatile`. To select another model supported
+   by your account, add `--model MODEL_ID`.
+
+4. Run offline safety tests (no key needed):
+
+   ```cmd
+   python -m unittest discover -s tests -v
+   python research_eval.py
+   ```
+
+If the API returns HTTP 401, check the key; 404 generally points to a wrong
+model name; 429 indicates a rate limit or quota. See
+https://console.groq.com/docs/api-reference for API details.
+
+Groq only proposes actions. The independent local controller authorizes
+arithmetic and drafting; it rejects unapproved action types. This prototype
+is **not a secure sandbox or proof of AI alignment**.
