@@ -42,6 +42,14 @@ Keep responses fairly concise unless the user requests detail."""}]
                 result = json.loads(response.read(200000).decode("utf-8"))
             answer = result["choices"][0]["message"]["content"]
         except HTTPError as exc:
+            if exc.code == 429:
+                retry_after = exc.headers.get("Retry-After", "")
+                try:
+                    seconds = int(float(retry_after))
+                    hint = f" Retry after approximately {seconds} seconds." if 0 < seconds <= 86400 else ""
+                except (TypeError, ValueError):
+                    hint = " Check your Groq Console limits for the reset time."
+                raise AdvisorError("Groq rate limit reached (HTTP 429)." + hint + " No conversation turn recorded.") from None
             raise AdvisorError(f"Groq HTTP {exc.code}; no conversation turn recorded.") from None
         except URLError:
             raise AdvisorError("Network failure; no conversation turn recorded.") from None
