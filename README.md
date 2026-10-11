@@ -36,3 +36,40 @@ The planner is a stub, not a language model. No network, shell, or money-transfe
 - Require independent safety review before expanding autonomy or tool access.
 
 The objective is to investigate **how increasingly capable AI could remain accountable to human governance**—not to assume this has already been solved.
+
+## v0.2 — optional real language model
+
+To let a real model **propose** an action (nothing is executed unless the
+independent controller allows it), set an API key locally and run:
+
+```bash
+# macOS / Linux
+export OPENAI_API_KEY="your-api-key"
+python run_llm.py "Calculate 12 times 7"
+python run_llm.py "Draft a friendly message for my reviewer"
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:OPENAI_API_KEY="your-api-key"
+python run_llm.py "Calculate 12 times 7"
+```
+
+You can override the model with `--model MODEL_ID` or `OPENAI_MODEL`.
+The API may incur charges. **Never commit API keys.**
+
+The model receives only the user instruction and a restricted JSON action
+schema. Its output is parsed as an *untrusted proposal* and checked by the
+same default-deny controller. Invalid responses fail closed. Neither the
+model nor a suggested action can authorize sending messages, transferring
+money, or modifying the policy.
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+**Important limits:** This is an educational in-process controller, not a
+sandbox, formal safety proof, moral reasoner, or reliable defense against a
+malicious superintelligence. The HTTP request is made by a separate
+conventional client; the model is not given tool execution privileges.
