@@ -10,7 +10,7 @@ def main():
         print("GROQ_API_KEY is missing. Set it in this CMD window.")
         return 1
     req = Request("https://api.groq.com/openai/v1/models",
-                  headers={"Authorization": f"Bearer {key}"})
+                  headers={"Authorization": f"Bearer {key.strip()}", "User-Agent": "curl/8.0", "Accept": "application/json"})
     try:
         with urlopen(req, timeout=20) as response:
             payload = json.loads(response.read(200000))
@@ -22,7 +22,8 @@ def main():
         if not models:
             print("(No models listed.)")
     except HTTPError as exc:
-        print(f"Groq returned HTTP {exc.code}; check permissions.")
+        print(f"Groq returned HTTP {exc.code} from Python; compare it with CMD curl.")
+        print("Try: curl -s https://api.groq.com/openai/v1/models -H \"Authorization: Bearer %GROQ_API_KEY%\"")
         return 1
     except (URLError, ValueError, KeyError, TypeError):
         print("Unable to retrieve models; check connection.")
