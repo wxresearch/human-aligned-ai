@@ -73,3 +73,39 @@ python -m unittest discover -s tests -v
 sandbox, formal safety proof, moral reasoner, or reliable defense against a
 malicious superintelligence. The HTTP request is made by a separate
 conventional client; the model is not given tool execution privileges.
+
+## v0.3–v1.0 research scaffolding
+
+These are **early experiments**, not completed safety milestones:
+
+- `oversight.py`: human-review records keyed to exact proposals; approved
+  proposals remain **simulation-only**. Approval is in memory, not authenticated.
+- `ethics.py`: a review questionnaire covering well-being, autonomy, truth,
+  fairness, reversibility, and uncertainty. It provides **no moral verdict**.
+- `research_eval.py`: repeatable adversarial policy/parser examples.
+- `RESEARCH.md`: hypotheses, evidence standards, open questions, and threat model.
+
+Run all unit tests and the scenario harness:
+
+```bash
+python -m unittest discover -s tests -v
+python research_eval.py
+```
+
+Example of simulated human approval (no external actions):
+
+```python
+from safe_agent import Action
+from oversight import ApprovalRegistry, review_proposal
+
+proposal = Action("propose_publication", {"summary": "Publish research overview"})
+registry = ApprovalRegistry()
+print(review_proposal(proposal, registry))  # denied until approved
+registry.record(proposal, reviewer="human", approved=True)
+print(review_proposal(proposal, registry))  # simulation-only approval
+```
+
+**Limitations:** approval has no identity authentication or durable storage,
+the model can still generate misleading prose, and checklist-based ethical
+reflection is not proof of moral behavior. Do not treat this as a security
+boundary or a deployable autonomous agent.
