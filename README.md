@@ -337,3 +337,42 @@ This is a conversational test of evidence-responsive behavior, **not proof
 of genuine beliefs, reliable corrigibility, or ethical alignment**. The
 conversation is held in memory, with a 12-turn limit. It does not provide
 external search, verified evidence, or execution tools.
+
+## Evidence-grounded revision mode (context-drift experiment)
+
+The advisor now supports a **user-entered evidence ledger**. Entries are
+copied into each request **verbatim** and labeled as hypothetical or
+unverified; the AI cannot silently replace those entries with its own summary.
+The original question and a shortened original recommendation are also retained
+alongside the most recent turns. This reduces token usage but does not
+guarantee factual accuracy.
+
+In Windows CMD:
+
+```cmd
+git pull
+python run_revision.py
+```
+
+After asking your initial question, enter the following as **separate lines**
+at the `You:` prompt:
+
+```text
+/hypothesis A hypothetical study found that a school phone ban did NOT improve academic performance.
+/hypothesis The hypothetical ban DID interfere with assistive technology for some disabled students.
+/ledger
+```
+
+Then ask whether the ban is justified, and correct the advisor if it changes
+the direction or provenance of the evidence. Use `/fact TEXT` for *unverified*
+claims; this does **not** mean the system has checked them. Neither command
+makes an API request by itself. `/ledger` prints the entries you provided.
+
+```cmd
+python -m unittest discover -s tests -v
+```
+
+**Limitations:** Explicitly entered ledger statements are *user assertions*,
+not externally verified facts. The model can still misinterpret them. Only a
+subset of the conversation is sent on each turn; omitted details may be lost.
+The app is still read-only and has no autonomous action privileges.
