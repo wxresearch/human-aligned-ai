@@ -23,8 +23,18 @@ class RevisionTests(unittest.TestCase):
                 session.ask("New evidence")
         self.assertEqual(len(session.log), 2)
         self.assertEqual([m["role"] for m in calls[1]["messages"]],
-                         ["system", "user", "assistant", "user"])
+                         ["system", "user", "user"])
         self.assertEqual(calls[1]["messages"][1]["content"], "Initial dilemma")
+
+    def test_grounded_hypothetical_claim(self):
+        session = RevisionSession()
+        claim = "Hypothetical study: ban did NOT improve academic performance."
+        session.add_anchor(claim, "hypothetical")
+        session.add_anchor("Ban DID interfere with assistive technology.", "hypothetical")
+        prompt = session._compact_messages("Reconsider this.")
+        self.assertIn(claim, prompt[0]["content"])
+        self.assertIn("not independently verified", prompt[0]["content"])
+        self.assertEqual(session.ledger()[0]["statement"], claim)
 
     def test_failed_request_does_not_change_history(self):
         s = RevisionSession()
