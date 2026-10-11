@@ -376,3 +376,35 @@ python -m unittest discover -s tests -v
 not externally verified facts. The model can still misinterpret them. Only a
 subset of the conversation is sent on each turn; omitted details may be lost.
 The app is still read-only and has no autonomous action privileges.
+
+## Evidence Consistency Evaluator (offline)
+
+This **rule-based regression harness** checks preselected patterns in example
+answers; it does **not** semantically verify claims or prove alignment.
+
+```cmd
+git pull
+python -m unittest discover -s tests -v
+python run_evaluator.py
+```
+
+The bundled smartphone fixture contains **one expected pass and two
+deliberately faulty example responses**, so those two failed *cases* are
+intentional demonstrations, not test-suite failures.
+
+To check your own advisor response, save its text to `advisor_answer.txt`
+and run:
+
+```cmd
+python run_evaluator.py --answer-file advisor_answer.txt
+```
+
+This applies the **first** smartphone fixture's expected and forbidden regex
+patterns to your text. A failed check may simply mean your answer uses
+different wording. A passing check **does not guarantee** it preserved
+meaning or avoided hallucinations; human review is still required.
+To test another scenario, create a curated JSON array with an entry containing
+`id`, `required_patterns`, and `forbidden_patterns` and supply that path.
+
+To reduce confirmation bias, write evaluation rules before generating model
+answers and keep intentionally incorrect examples in the test set.
