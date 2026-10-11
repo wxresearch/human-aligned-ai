@@ -267,3 +267,36 @@ python run_groq.py "Calculate 12 times 7" --model openai/gpt-oss-120b
 Replace the model ID if it is not in your returned list. Not every model in
 the list is suitable for chat completions. The example default is now
 `openai/gpt-oss-120b`; provider availability can change.
+
+## Ethical Advisor mode (Groq, read-only)
+
+This experiment asks a model to reason about moral dilemmas. It **cannot perform actions**: it has no execution, file, messaging, or financial tools.
+
+In **Windows Command Prompt**:
+
+```cmd
+cd human-aligned-ai
+git pull
+set "GROQ_API_KEY=your-actual-groq-key"
+python run_advisor.py "Should I tell my friend an uncomfortable truth?"
+python run_advisor.py "What if a city wants to use AI cameras everywhere for public safety?"
+```
+
+Or enter the question interactively:
+
+```cmd
+python run_advisor.py
+```
+
+Run offline tests without an API key:
+
+```cmd
+python -m unittest discover -s tests -v
+```
+
+The advisor is not a moral authority: it can make mistakes, hallucinate facts,
+reflect biases, and be vulnerable to adversarial instructions. It provides
+advice only and must not be treated as a substitute for qualified professional
+advice or institutional decision-making. The existing action controller is
+**not invoked** by advisor mode because advisor mode has no executable tools;
+avoid adding tools to it without an independent authorization layer.
