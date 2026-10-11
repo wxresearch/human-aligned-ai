@@ -23,7 +23,7 @@ class RevisionTests(unittest.TestCase):
                 session.ask("New evidence")
         self.assertEqual(len(session.log), 2)
         self.assertEqual([m["role"] for m in calls[1]["messages"]],
-                         ["system", "user", "user"])
+                         ["system", "user", "assistant", "user"])
         self.assertEqual(calls[1]["messages"][1]["content"], "Initial dilemma")
 
     def test_grounded_hypothetical_claim(self):
