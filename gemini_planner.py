@@ -32,6 +32,19 @@ def propose(instruction: str, *, model: str | None = None) -> Action:
             obj = json.loads(response.read(100_000).decode("utf-8"))
         parts = obj["candidates"][0]["content"]["parts"]
         raw = "".join(part.get("text", "") for part in parts)
-    except (HTTPError, URLError, KeyError, IndexError, TypeError, ValueError) as exc:
-        raise ModelProposalError("Gemini request failed; no action was executed. Check API key, model access and quota.") from exc
+    except HTTPError as exc:
+        guidance = {
+            400: "Invalid request or API key; check the Gemini API key and request format.",
+            401: "Authentication failed; check the API key.",
+            403: "Permission denied; check API key restrictions, API access or billing.",
+            404: "Model not found or not available to this API key; try a supported model.",
+            429: "Quota or rate limit reached; check Google AI Studio usage and billing.",
+            500: "Google server error; retry later.",
+            503: "Gemini temporarily unavailable; retry later.",
+        }.get(exc.code, "See Google AI Studio API access and model settings.")
+        raise ModelProposalError(f"Gemini HTTP {exc.code}: {guidance} No action executed.") from None
+    except URLError:
+        raise ModelProposalError("Network error contacting Gemini; check internet, proxy or firewall. No action executed.") from None
+    except (KeyError, IndexError, TypeError, ValueError):
+        raise ModelProposalError("Unexpected Gemini response; no action executed.") from None
     return parse_proposal(raw)
