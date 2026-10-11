@@ -60,6 +60,7 @@ Responses: about 150-250 words unless asked otherwise."""
         prior = []
         if self.log:
             prior.append({"role": "user", "content": self.log[0]["question"]})
+            prior.append({"role": "assistant", "content": self.log[0]["answer"][:MAX_REPLY_CONTEXT]})
             # Keep only last two exchanges; original prompt stays in full.
             for item in self.log[-2:]:
                 if item is self.log[0]:
