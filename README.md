@@ -300,3 +300,40 @@ advice only and must not be treated as a substitute for qualified professional
 advice or institutional decision-making. The existing action controller is
 **not invoked** by advisor mode because advisor mode has no executable tools;
 avoid adding tools to it without an independent authorization layer.
+
+## Multi-turn Ethical Advisor — evidence revision experiment
+
+Unlike `run_advisor.py`, this mode retains earlier questions and answers
+within a single terminal session, so you can evaluate whether the model
+actually changes its response when confronted with new evidence.
+
+In **Windows Command Prompt**:
+
+```cmd
+cd human-aligned-ai
+git pull
+python run_revision.py
+```
+
+Ask an ethical dilemma. In the next prompt, provide new evidence, then ask:
+"What changed in your recommendation, and why?" Type `/quit` to exit.
+
+Optional transcript:
+
+```cmd
+python run_revision.py --save revision_test.json
+```
+
+**Privacy:** Only use `--save` for non-sensitive discussions. Transcript
+contents are saved to the specified local file (not automatically to GitHub).
+Do not commit transcripts containing personal information.
+
+Run offline tests:
+```cmd
+python -m unittest discover -s tests -v
+```
+
+This is a conversational test of evidence-responsive behavior, **not proof
+of genuine beliefs, reliable corrigibility, or ethical alignment**. The
+conversation is held in memory, with a 12-turn limit. It does not provide
+external search, verified evidence, or execution tools.
