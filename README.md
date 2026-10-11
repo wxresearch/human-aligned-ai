@@ -155,3 +155,51 @@ These steps use **Command Prompt**, not PowerShell.
 7. When finished, close Command Prompt to clear this session's `OPENAI_API_KEY` environment variable (or run `set OPENAI_API_KEY=`).
 
 **Safety note:** This is a local educational prototype, not a hardened sandbox or proof of alignment. The approval demonstration authorizes only *simulated* proposals; it does not publish or send anything.
+
+## Use Google Gemini instead of OpenAI (Windows Command Prompt)
+
+You **do not need an OpenAI API key** to run the Gemini option.
+
+1. In Command Prompt, go to the project folder and get updates:
+
+   ```cmd
+   cd human-aligned-ai
+   git pull
+   ```
+
+2. Confirm Python is installed: `python --version`. If `py` doesn't
+   work but `python` does, use `python` in **all** commands below.
+3. Get a Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey).
+   In the **same Command Prompt window**, set it temporarily:
+
+   ```cmd
+   set "GEMINI_API_KEY=your-google-api-key"
+   ```
+
+4. Try the real model with a safe, limited action:
+
+   ```cmd
+   python run_gemini.py "Calculate 12 times 7"
+   python run_gemini.py "Draft a friendly message to my reviewer"
+   ```
+
+   The model proposes an action; the local controller checks and either
+   permits arithmetic/drafting or rejects it. **It cannot send messages,
+   transfer funds, or change policy.**
+
+5. Run the tests **without an API key**:
+
+   ```cmd
+   python -m unittest discover -s tests -v
+   python research_eval.py
+   ```
+
+If you get a model/API error, check the API key, model access and quota.
+You can select a supported model with `--model MODEL_ID` or by setting
+`GEMINI_MODEL`. Gemini API availability, model names and billing can change.
+Do not share or commit your key. Closing the CMD window clears the temporary
+variable; alternatively run `set GEMINI_API_KEY=`.
+
+This Gemini integration uses Google's REST `generateContent` endpoint,
+with **no Python packages to install beyond Python itself**.
+The controller remains a demonstration, not a security guarantee.
