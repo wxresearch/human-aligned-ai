@@ -20,13 +20,11 @@ def propose(instruction: str, *, model: str | None = None) -> Action:
         "model": model_name,
         "messages": [{"role": "system", "content": SYSTEM},
                      {"role": "user", "content": instruction}],
-        "response_format": {"type": "json_object"},
-        "temperature": 0,
     }
     request = Request(
         "https://api.groq.com/openai/v1/chat/completions",
         data=json.dumps(payload).encode("utf-8"),
-        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+        headers={"Authorization": f"Bearer {key.strip()}", "Content-Type": "application/json", "Accept": "application/json", "User-Agent": "curl/8.0"},
         method="POST",
     )
     try:
@@ -45,6 +43,7 @@ def propose(instruction: str, *, model: str | None = None) -> Action:
         }
         message = descriptions.get(exc.code, "Check your Groq API account")
         error_code = ""
+        safe_reason = ""
         try:
             error_body = json.loads(exc.read(8192).decode("utf-8"))
             candidate = error_body.get("error", {}).get("code", "")
@@ -53,6 +52,9 @@ def propose(instruction: str, *, model: str | None = None) -> Action:
                 "blocked_api_access", "invalid_api_key",
             }
             if candidate in allowed_codes:
+                error_code = f" ({candidate})"
+            # Do not print arbitrary server messages; they may contain sensitive data.
+            elif isinstance(candidate, str) and candidate in {"model_not_found", "invalid_request_error"}:
                 error_code = f" ({candidate})"
         except (ValueError, TypeError, AttributeError, UnicodeDecodeError, OSError):
             pass
