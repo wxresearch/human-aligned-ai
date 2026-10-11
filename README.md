@@ -109,3 +109,49 @@ print(review_proposal(proposal, registry))  # simulation-only approval
 the model can still generate misleading prose, and checklist-based ethical
 reflection is not proof of moral behavior. Do not treat this as a security
 boundary or a deployable autonomous agent.
+
+## Getting started in Windows Command Prompt (cmd.exe)
+
+These steps use **Command Prompt**, not PowerShell.
+
+1. Install **Python 3.10+** from https://www.python.org/downloads/ (check **Add python.exe to PATH** during installation). Install **Git** from https://git-scm.com/download/win.
+2. Open Command Prompt: press **Win + R**, enter `cmd`, and press Enter.
+3. Verify the tools:
+
+   ```cmd
+   py --version
+   git --version
+   ```
+
+4. Download the project and enter its directory:
+
+   ```cmd
+   git clone https://github.com/wxresearch/human-aligned-ai.git
+   cd human-aligned-ai
+   ```
+
+   If you already cloned it earlier, instead run `cd human-aligned-ai` and `git pull` from the directory containing the repository. Since the repository is private, Git may prompt you to sign in to GitHub.
+
+5. **Test without any API key (recommended first):**
+
+   ```cmd
+   py safe_agent.py
+   py -m unittest discover -s tests -v
+   py research_eval.py
+   ```
+
+   The demo shows permitted and blocked actions. Unit tests should show **OK** and the scenario report should show all checks passing. If you get failures, capture the traceback and investigate before proceeding.
+
+6. **Optional: test the real AI planner.** Create an OpenAI API key through the API platform, and in **the same Command Prompt window** set it for this session:
+
+   ```cmd
+   set "OPENAI_API_KEY=put-your-key-here"
+   py run_llm.py "Calculate 12 times 7"
+   py run_llm.py "Draft a friendly message to my reviewer"
+   ```
+
+   API use may incur charges. **Never paste your real key in screenshots, chats, or commits.** The key is not required for the tests in step 5. The default model may need to be changed if it is unavailable to your API account, using `--model MODEL_ID`.
+
+7. When finished, close Command Prompt to clear this session's `OPENAI_API_KEY` environment variable (or run `set OPENAI_API_KEY=`).
+
+**Safety note:** This is a local educational prototype, not a hardened sandbox or proof of alignment. The approval demonstration authorizes only *simulated* proposals; it does not publish or send anything.
